@@ -1,4 +1,4 @@
-package main.java.com.chekh.network.neuron
+package com.chekh.network.neuron
 
 class SoftmaxNeuron {
     var y: Double = 0.0

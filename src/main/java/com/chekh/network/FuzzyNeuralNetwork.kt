@@ -1,6 +1,7 @@
-package main.java.com.chekh.network
+package com.chekh.network
 
-import main.java.com.chekh.network.layer.*
+import com.chekh.network.layer.AggregationLayer
+import com.chekh.network.layer.*
 
 class FuzzyNeuralNetwork(val inputCount: Int, val ruleCount: Int, val outputCount: Int) {
     private val inputLayer = InputLayer(inputCount)
@@ -10,6 +11,10 @@ class FuzzyNeuralNetwork(val inputCount: Int, val ruleCount: Int, val outputCoun
     private val summingLayer = SummingLayer(outputCount)
     private val softmaxLayer = SoftmaxLayer(outputCount)
     private val outputLayer = OutputLayer(outputCount)
+
+    fun train(dataset: Dataset, epoch: Int, learningRate: Double) {
+
+    }
 
     fun calcutale(x: List<Double>): List<Double> {
         inputLayer.x = x

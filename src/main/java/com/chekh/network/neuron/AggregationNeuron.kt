@@ -1,6 +1,6 @@
-package main.java.com.chekh.network.neuron
+package com.chekh.network.neuron
 
-import main.java.com.chekh.network.util.Functions.Companion.mul
+import com.chekh.network.util.Functions.Companion.mul
 
 class AggregationNeuron {
     var weight: Double = 0.0

@@ -1,4 +1,4 @@
-package main.java.com.chekh.network.util
+package com.chekh.network.util
 
 import kotlin.math.pow
 

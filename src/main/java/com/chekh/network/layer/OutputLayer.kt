@@ -1,4 +1,4 @@
-package main.java.com.chekh.network.layer
+package com.chekh.network.layer
 
 class OutputLayer(val outputCount: Int) {
     var y: List<Double> = mutableListOf()

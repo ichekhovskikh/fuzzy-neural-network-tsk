@@ -1,6 +1,6 @@
-package main.java.com.chekh.network.layer
+package com.chekh.network.layer
 
-import main.java.com.chekh.network.neuron.SummingNeuron
+import com.chekh.network.neuron.SummingNeuron
 
 class SummingLayer(val outputCount: Int) {
     var functionalNeurons: MutableList<SummingNeuron> = mutableListOf()

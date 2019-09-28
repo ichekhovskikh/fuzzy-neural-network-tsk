@@ -1,6 +1,6 @@
-package main.java.com.chekh.network.layer
+package com.chekh.network.layer
 
-import main.java.com.chekh.network.neuron.SoftmaxNeuron
+import com.chekh.network.neuron.SoftmaxNeuron
 
 class SoftmaxLayer(val outputCount: Int) {
     var neurons: MutableList<SoftmaxNeuron> = mutableListOf()

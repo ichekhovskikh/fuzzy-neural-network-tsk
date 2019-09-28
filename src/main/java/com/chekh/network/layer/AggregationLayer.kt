@@ -1,6 +1,6 @@
-package main.java.com.chekh.network.layer
+package com.chekh.network.layer
 
-import main.java.com.chekh.network.neuron.AggregationNeuron
+import com.chekh.network.neuron.AggregationNeuron
 
 class AggregationLayer(val ruleCount: Int) {
     var neurons: MutableList<AggregationNeuron> = mutableListOf()

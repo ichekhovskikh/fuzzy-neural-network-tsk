@@ -1,6 +1,6 @@
-package main.java.com.chekh.network.neuron
+package com.chekh.network.neuron
 
-import main.java.com.chekh.network.util.Functions
+import com.chekh.network.util.Functions
 import java.util.concurrent.ThreadLocalRandom
 
 class FuzzyNeuron {

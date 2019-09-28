@@ -1,6 +1,6 @@
-package main.java.com.chekh.network.layer
+package com.chekh.network.layer
 
-import main.java.com.chekh.network.neuron.FuzzyNeuron
+import com.chekh.network.neuron.FuzzyNeuron
 
 class FuzzyLayer(val inputCount: Int, val ruleCount: Int) {
     var neurons: MutableList<FuzzyNeuron> = mutableListOf()

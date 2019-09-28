@@ -1,6 +1,6 @@
-package main.java.com.chekh.network.layer
+package com.chekh.network.layer
 
-import main.java.com.chekh.network.neuron.GeneratingNeuron
+import com.chekh.network.neuron.GeneratingNeuron
 
 class GeneratingLayer(val inputCount: Int, val ruleCount: Int, val outputCount: Int) {
     var neurons: MutableList<GeneratingNeuron> = mutableListOf()

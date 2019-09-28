@@ -1,4 +1,4 @@
-package main.java.com.chekh.network.neuron
+package com.chekh.network.neuron
 
 import java.util.concurrent.ThreadLocalRandom
 
