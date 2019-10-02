@@ -13,11 +13,18 @@ class FuzzyNeuron {
     var sigma: Double = 0.0
         private set
 
-    init {
+    constructor() {
         val random = ThreadLocalRandom.current()
         b = random.nextDouble(1.0)
         c = random.nextDouble(1.0)
         sigma = random.nextDouble(1.0)
+    }
+
+    constructor(neuron: FuzzyNeuron) {
+        b = neuron.b
+        c = neuron.c
+        sigma = neuron.sigma
+        mu = neuron.mu
     }
 
     fun calculateMu(x: Double): Double {

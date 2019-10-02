@@ -21,4 +21,35 @@ class GeneratingLayer(val inputCount: Int, val ruleCount: Int, val outputCount: 
             }
         }
     }
+
+    fun asActivationMatrix(aggregationLayer: AggregationLayer): List<DoubleArray> {
+        require(ruleCount == aggregationLayer.ruleCount)
+        val matrix = mutableListOf<DoubleArray>()
+        for (outputIndex in 0 until outputCount) {
+            val array = mutableListOf<Double>()
+            for ((ruleIndex, generatingIndex) in (outputIndex until neurons.size step outputCount).withIndex()) {
+                neurons[generatingIndex].p.forEach { _ ->
+                    array.add(aggregationLayer.activationLevel(ruleIndex))
+                }
+            }
+            matrix.add(array.toDoubleArray())
+        }
+        return matrix
+    }
+
+    fun setLinearParams(params: List<Double>) {
+        require(params.size == ruleCount * outputCount * (inputCount + 1))
+        var index = 0
+        for (outputIndex in 0 until outputCount) {
+            for (generatingIndex in outputIndex until neurons.size step outputCount) {
+                for (paramIndex in outputIndex until neurons[generatingIndex].p.size) {
+                    neurons[generatingIndex].p[paramIndex] = params[index++]
+                }
+            }
+        }
+    }
+
+    fun getErrors(inputLayer: InputLayer, errors: List<Double>): List<Double> {
+        TODO("not implemented")
+    }
 }

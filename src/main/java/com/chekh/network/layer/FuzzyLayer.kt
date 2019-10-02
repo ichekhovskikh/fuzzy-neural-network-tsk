@@ -7,8 +7,11 @@ class FuzzyLayer(val inputCount: Int, val ruleCount: Int) {
         private set
 
     init {
-        for (index in 0 until inputCount * ruleCount) {
-            neurons.add(FuzzyNeuron())
+        val uniqueNeurons = createUniqueNeurons(ruleCount)
+        for (index in 0 until inputCount) {
+            uniqueNeurons.forEach {
+                neurons.add(FuzzyNeuron(it))
+            }
         }
     }
 
@@ -19,5 +22,17 @@ class FuzzyLayer(val inputCount: Int, val ruleCount: Int) {
                 neurons[ruleIndex + inputIndex * inputCount].calculateMu(value)
             }
         }
+    }
+
+    fun hybridCorrect(inputLayer: InputLayer, errors: List<Double>, learningRate: Double) {
+        TODO("not implemented")
+    }
+
+    private fun createUniqueNeurons(count: Int): List<FuzzyNeuron> {
+        val uniqueNeurons = mutableListOf<FuzzyNeuron>()
+        for (index in 0 until count) {
+            uniqueNeurons.add(FuzzyNeuron())
+        }
+        return uniqueNeurons
     }
 }

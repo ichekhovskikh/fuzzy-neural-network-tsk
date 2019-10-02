@@ -21,9 +21,9 @@ class GeneratingNeuron(inputCount: Int) {
 
     fun calculateGenerating(x: List<Double>, weight: Double): Double {
         require(p.size - 1 == x.size)
-        var sum = 0.0
+        var sum = p[0]
         x.forEachIndexed { index, value -> sum += p[index + 1] * value }
-        generating = weight * (p[0] + sum)
+        generating = weight * sum
         return generating
     }
 }

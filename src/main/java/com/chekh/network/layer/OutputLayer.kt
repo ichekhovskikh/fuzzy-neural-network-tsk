@@ -8,4 +8,8 @@ class OutputLayer(val outputCount: Int) {
         require(outputCount == softmaxLayer.outputCount)
         y = softmaxLayer.neurons.map { it.y }
     }
+
+    fun getErrors(output: List<Double>): List<Double> {
+        TODO("not implemented")
+    }
 }

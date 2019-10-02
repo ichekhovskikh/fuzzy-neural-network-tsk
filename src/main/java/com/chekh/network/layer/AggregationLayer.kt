@@ -22,4 +22,10 @@ class AggregationLayer(val ruleCount: Int) {
             neurons[ruleIndex].calculateWeight(muList)
         }
     }
+
+    fun activationLevel(ruleIndex: Int): Double {
+        var sum = 0.0
+        neurons.forEach { sum += it.weight }
+        return neurons[ruleIndex].weight / sum
+    }
 }
