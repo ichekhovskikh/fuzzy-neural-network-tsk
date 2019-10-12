@@ -29,12 +29,12 @@ class FuzzyNeuralNetwork(val inputCount: Int, val ruleCount: Int) {
     }
 
     private fun layersRecalculate() {
-        fuzzyLayer.calculate(inputLayer)
-        aggregationLayer.calculate(fuzzyLayer)
-        generatingLayer.calculate(inputLayer, aggregationLayer)
-        summingLayer.calculate(generatingLayer, aggregationLayer)
-        softmaxLayer.calculate(summingLayer)
-        outputLayer.calculate(softmaxLayer)
+        fuzzyLayer.calculate(inputLayer.x)
+        aggregationLayer.calculate(fuzzyLayer.muGroupedByRules)
+        generatingLayer.calculate(inputLayer.x, aggregationLayer.weights)
+        summingLayer.calculate(generatingLayer.generating, aggregationLayer.weights)
+        softmaxLayer.calculate(summingLayer.signal, summingLayer.weightSum)
+        outputLayer.calculate(softmaxLayer.y)
     }
 
     private fun calculateLinearParams(dataset: Dataset) {
@@ -42,8 +42,9 @@ class FuzzyNeuralNetwork(val inputCount: Int, val ruleCount: Int) {
         val fullOutputMatrix = mutableListOf<Double>()
         dataset.rows.shuffled().forEach { row ->
             calcutale(row.inputs)
-            val activationMatrixForOneEpoch = generatingLayer.asActivationMatrix(aggregationLayer)
-            fullActivationMatrix.add(activationMatrixForOneEpoch)
+            val activationLevels = aggregationLayer.asActivationArray()
+            val activationArrayForOneEpoch = generatingLayer.asActivationArray(activationLevels)
+            fullActivationMatrix.add(activationArrayForOneEpoch)
             fullOutputMatrix.add(row.output)
         }
         val linearParams = fullActivationMatrix
@@ -58,7 +59,7 @@ class FuzzyNeuralNetwork(val inputCount: Int, val ruleCount: Int) {
         dataset.rows.shuffled().forEach { row ->
             calcutale(row.inputs)
             val error = outputLayer.getError(row.output)
-            fuzzyLayer.correct(inputLayer, generatingLayer, error, learningRate)
+            fuzzyLayer.correct(inputLayer.x, generatingLayer.pGroupedByRules, error, learningRate)
         }
     }
 }

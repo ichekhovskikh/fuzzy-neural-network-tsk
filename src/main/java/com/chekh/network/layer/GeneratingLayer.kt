@@ -3,8 +3,14 @@ package com.chekh.network.layer
 import com.chekh.network.neuron.GeneratingNeuron
 
 class GeneratingLayer(val inputCount: Int, val ruleCount: Int) {
-    var neurons: MutableList<GeneratingNeuron> = mutableListOf()
-        private set
+    private val neurons: MutableList<GeneratingNeuron> = mutableListOf()
+    val generating: List<Double> get() = neurons.map { it.generating }
+    val pGroupedByRules: List<List<Double>>
+        get() {
+            val list = mutableListOf<List<Double>>()
+            neurons.forEach { neuron -> list.add(neuron.p) }
+            return list
+        }
 
     init {
         for (index in 0 until ruleCount) {
@@ -12,19 +18,19 @@ class GeneratingLayer(val inputCount: Int, val ruleCount: Int) {
         }
     }
 
-    fun calculate(inputLayer: InputLayer, aggregationLayer: AggregationLayer) {
-        require(inputCount == inputLayer.inputCount)
-        require(ruleCount == aggregationLayer.ruleCount)
-        aggregationLayer.neurons.forEachIndexed { aggregationIndex, aggregationNeuron ->
-            neurons[aggregationIndex].calculateGenerating(inputLayer.x, aggregationNeuron.weight)
+    fun calculate(x: List<Double>, weights: List<Double>) {
+        require(inputCount == x.size)
+        require(ruleCount == weights.size)
+        weights.forEachIndexed { aggregationIndex, weight ->
+            neurons[aggregationIndex].calculateGenerating(x, weight)
         }
     }
 
-    fun asActivationMatrix(aggregationLayer: AggregationLayer): DoubleArray {
-        require(ruleCount == aggregationLayer.ruleCount)
+    fun asActivationArray(activationLevels: List<Double>): DoubleArray {
+        require(ruleCount == activationLevels.size)
         val array = mutableListOf<Double>()
         neurons.forEachIndexed { ruleIndex, neuron ->
-            neuron.p.forEach { _ -> array.add(aggregationLayer.activationLevel(ruleIndex)) }
+            neuron.p.forEach { _ -> array.add(activationLevels[ruleIndex]) }
         }
         return array.toDoubleArray()
     }

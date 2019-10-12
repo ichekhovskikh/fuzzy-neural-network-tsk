@@ -3,10 +3,10 @@ package com.chekh.network.layer
 import com.chekh.network.neuron.SoftmaxNeuron
 
 class SoftmaxLayer {
-    var neuron: SoftmaxNeuron = SoftmaxNeuron()
-        private set
+    private val neuron: SoftmaxNeuron = SoftmaxNeuron()
+    val y: Double get() = neuron.y
 
-    fun calculate(summingLayer: SummingLayer) {
-        neuron.calculateOutput(summingLayer.summingNeuron.sum, summingLayer.weightNeuron.sum)
+    fun calculate(signalFunction: Double, weightSum: Double) {
+        neuron.calculateOutput(signalFunction, weightSum)
     }
 }
