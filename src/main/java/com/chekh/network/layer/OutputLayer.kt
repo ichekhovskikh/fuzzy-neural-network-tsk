@@ -1,15 +1,14 @@
 package com.chekh.network.layer
 
-class OutputLayer(val outputCount: Int) {
-    var y: List<Double> = mutableListOf()
+class OutputLayer {
+    var y: Double = 0.0
         private set
 
     fun calculate(softmaxLayer: SoftmaxLayer) {
-        require(outputCount == softmaxLayer.outputCount)
-        y = softmaxLayer.neurons.map { it.y }
+        y = softmaxLayer.neuron.y
     }
 
-    fun getErrors(output: List<Double>): List<Double> {
-        TODO("not implemented")
+    fun getError(output: Double): Double {
+        return  y - output
     }
 }

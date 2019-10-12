@@ -7,11 +7,8 @@ class FuzzyNeuron {
     var mu: Double = 0.0
         private set
     var b: Double = 0.0
-        private set
     var c: Double = 0.0
-        private set
     var sigma: Double = 0.0
-        private set
 
     constructor() {
         val random = ThreadLocalRandom.current()

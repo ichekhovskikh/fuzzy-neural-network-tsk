@@ -10,10 +10,18 @@ class Functions private constructor() {
             1.0 / (1 + ((x - c) / sigma).pow(2 * b))
 
         @JvmStatic
-        fun List<Double>.mul(): Double {
+        @JvmOverloads
+        fun List<Double>.mul(ignoreIndex: Int = -1): Double {
             var mul = 0.0
-            this.forEach { mul *= it }
+            this.forEachIndexed { index, value ->
+                if (index != ignoreIndex) {
+                    mul *= value
+                }
+            }
             return mul
         }
+
+        @JvmStatic
+        fun kronecker(i: Int, j: Int) = if (i == j) 1 else 0
     }
 }

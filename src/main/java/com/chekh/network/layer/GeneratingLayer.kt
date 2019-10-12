@@ -2,12 +2,12 @@ package com.chekh.network.layer
 
 import com.chekh.network.neuron.GeneratingNeuron
 
-class GeneratingLayer(val inputCount: Int, val ruleCount: Int, val outputCount: Int) {
+class GeneratingLayer(val inputCount: Int, val ruleCount: Int) {
     var neurons: MutableList<GeneratingNeuron> = mutableListOf()
         private set
 
     init {
-        for (index in 0 until ruleCount * outputCount) {
+        for (index in 0 until ruleCount) {
             neurons.add(GeneratingNeuron(inputCount))
         }
     }
@@ -16,40 +16,25 @@ class GeneratingLayer(val inputCount: Int, val ruleCount: Int, val outputCount: 
         require(inputCount == inputLayer.inputCount)
         require(ruleCount == aggregationLayer.ruleCount)
         aggregationLayer.neurons.forEachIndexed { aggregationIndex, aggregationNeuron ->
-            for (outputIndex in 0 until outputCount) {
-                neurons[aggregationIndex * outputCount].calculateGenerating(inputLayer.x, aggregationNeuron.weight)
-            }
+            neurons[aggregationIndex].calculateGenerating(inputLayer.x, aggregationNeuron.weight)
         }
     }
 
-    fun asActivationMatrix(aggregationLayer: AggregationLayer): List<DoubleArray> {
+    fun asActivationMatrix(aggregationLayer: AggregationLayer): DoubleArray {
         require(ruleCount == aggregationLayer.ruleCount)
-        val matrix = mutableListOf<DoubleArray>()
-        for (outputIndex in 0 until outputCount) {
-            val array = mutableListOf<Double>()
-            for ((ruleIndex, generatingIndex) in (outputIndex until neurons.size step outputCount).withIndex()) {
-                neurons[generatingIndex].p.forEach { _ ->
-                    array.add(aggregationLayer.activationLevel(ruleIndex))
-                }
-            }
-            matrix.add(array.toDoubleArray())
+        val array = mutableListOf<Double>()
+        neurons.forEachIndexed { ruleIndex, neuron ->
+            neuron.p.forEach { _ -> array.add(aggregationLayer.activationLevel(ruleIndex)) }
         }
-        return matrix
+        return array.toDoubleArray()
     }
 
     fun setLinearParams(params: List<Double>) {
-        require(params.size == ruleCount * outputCount * (inputCount + 1))
-        var index = 0
-        for (outputIndex in 0 until outputCount) {
-            for (generatingIndex in outputIndex until neurons.size step outputCount) {
-                for (paramIndex in outputIndex until neurons[generatingIndex].p.size) {
-                    neurons[generatingIndex].p[paramIndex] = params[index++]
-                }
+        require(params.size == ruleCount * (inputCount + 1))
+        for (ruleIndex in 0 until neurons.size) {
+            for (paramIndex in 0 until neurons[ruleIndex].p.size) {
+                neurons[ruleIndex].p[paramIndex] = params[paramIndex + ruleIndex * (inputCount + 1)]
             }
         }
-    }
-
-    fun getErrors(inputLayer: InputLayer, errors: List<Double>): List<Double> {
-        TODO("not implemented")
     }
 }

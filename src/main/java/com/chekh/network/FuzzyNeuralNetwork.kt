@@ -6,23 +6,23 @@ import com.chekh.network.util.toList
 import com.chekh.network.util.toSimpleColumn
 import com.chekh.network.util.toSimpleMatrix
 
-class FuzzyNeuralNetwork(val inputCount: Int, val ruleCount: Int, val outputCount: Int) {
+class FuzzyNeuralNetwork(val inputCount: Int, val ruleCount: Int) {
     private val inputLayer = InputLayer(inputCount)
     private val fuzzyLayer = FuzzyLayer(inputCount, ruleCount)
     private val aggregationLayer = AggregationLayer(ruleCount)
-    private val generatingLayer = GeneratingLayer(inputCount, ruleCount, outputCount)
-    private val summingLayer = SummingLayer(outputCount)
-    private val softmaxLayer = SoftmaxLayer(outputCount)
-    private val outputLayer = OutputLayer(outputCount)
+    private val generatingLayer = GeneratingLayer(inputCount, ruleCount)
+    private val summingLayer = SummingLayer()
+    private val softmaxLayer = SoftmaxLayer()
+    private val outputLayer = OutputLayer()
 
-    fun train(algorithm: LearningAlgorithm, dataset: Dataset, epoch: Int, learningRate: Double) {
-        when (algorithm) {
-            LearningAlgorithm.HYBRID -> hybrid(dataset, epoch, learningRate)
-            LearningAlgorithm.QUICK_PROP -> quickProp(dataset, epoch, learningRate)
+    fun train(dataset: Dataset, epoch: Int, learningRate: Double) {
+        for (index in 0 until epoch) {
+            calculateLinearParams(dataset)
+            calculateNonLinearParams(dataset, learningRate)
         }
     }
 
-    fun calcutale(x: List<Double>): List<Double> {
+    fun calcutale(x: List<Double>): Double {
         inputLayer.x = x
         layersRecalculate()
         return outputLayer.y
@@ -37,30 +37,14 @@ class FuzzyNeuralNetwork(val inputCount: Int, val ruleCount: Int, val outputCoun
         outputLayer.calculate(softmaxLayer)
     }
 
-    private fun hybrid(dataset: Dataset, epoch: Int, learningRate: Double) {
-        for (index in 0 until epoch) {
-            calculateHybridLinearParams(dataset)
-            calculateHybridNonLinearParams(dataset, learningRate)
-        }
-    }
-
-    private fun quickProp(dataset: Dataset, epoch: Int, learningRate: Double) {
-        for (index in 0 until epoch) {
-            dataset.rows.shuffled().forEach { row ->
-                calcutale(row.inputs)
-                TODO("not implemented")
-            }
-        }
-    }
-
-    private fun calculateHybridLinearParams(dataset: Dataset) {
+    private fun calculateLinearParams(dataset: Dataset) {
         val fullActivationMatrix = mutableListOf<DoubleArray>()
         val fullOutputMatrix = mutableListOf<Double>()
         dataset.rows.shuffled().forEach { row ->
             calcutale(row.inputs)
             val activationMatrixForOneEpoch = generatingLayer.asActivationMatrix(aggregationLayer)
-            fullActivationMatrix.addAll(activationMatrixForOneEpoch)
-            fullOutputMatrix.addAll(row.output)
+            fullActivationMatrix.add(activationMatrixForOneEpoch)
+            fullOutputMatrix.add(row.output)
         }
         val linearParams = fullActivationMatrix
             .toSimpleMatrix()
@@ -70,17 +54,11 @@ class FuzzyNeuralNetwork(val inputCount: Int, val ruleCount: Int, val outputCoun
         generatingLayer.setLinearParams(linearParams)
     }
 
-    private fun calculateHybridNonLinearParams(dataset: Dataset, learningRate: Double) {
+    private fun calculateNonLinearParams(dataset: Dataset, learningRate: Double) {
         dataset.rows.shuffled().forEach { row ->
             calcutale(row.inputs)
-            var errors = outputLayer.getErrors(row.output)
-            errors = generatingLayer.getErrors(inputLayer, errors)
-            fuzzyLayer.hybridCorrect(inputLayer, errors, learningRate)
+            val error = outputLayer.getError(row.output)
+            fuzzyLayer.correct(inputLayer, generatingLayer, error, learningRate)
         }
-    }
-
-    enum class LearningAlgorithm {
-        HYBRID,
-        QUICK_PROP
     }
 }
