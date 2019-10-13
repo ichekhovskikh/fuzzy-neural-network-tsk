@@ -15,6 +15,11 @@ class FuzzyNeuralNetwork(val inputCount: Int, val ruleCount: Int) {
     private val softmaxLayer = SoftmaxLayer()
     private val outputLayer = OutputLayer()
 
+    fun retrain(dataset: Dataset, epoch: Int, learningRate: Double) {
+        initWeights(dataset)
+        train(dataset, epoch, learningRate)
+    }
+
     fun train(dataset: Dataset, epoch: Int, learningRate: Double) {
         for (index in 0 until epoch) {
             calculateLinearParams(dataset)
@@ -26,6 +31,11 @@ class FuzzyNeuralNetwork(val inputCount: Int, val ruleCount: Int) {
         inputLayer.x = x
         layersRecalculate()
         return outputLayer.y
+    }
+
+    private fun initWeights(dataset: Dataset) {
+        fuzzyLayer.initWeights(dataset)
+        generatingLayer.initWeights()
     }
 
     private fun layersRecalculate() {

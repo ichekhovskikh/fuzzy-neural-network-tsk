@@ -6,7 +6,7 @@ class SoftmaxLayer {
     private val neuron: SoftmaxNeuron = SoftmaxNeuron()
     val y: Double get() = neuron.y
 
-    fun calculate(signalFunction: Double, weightSum: Double) {
-        neuron.calculateOutput(signalFunction, weightSum)
+    fun calculate(signal: Double, weightSum: Double) {
+        neuron.calculateOutput(signal, weightSum)
     }
 }

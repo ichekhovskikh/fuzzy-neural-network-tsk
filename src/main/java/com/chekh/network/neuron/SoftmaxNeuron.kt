@@ -4,8 +4,8 @@ class SoftmaxNeuron {
     var y: Double = 0.0
         private set
 
-    fun calculateOutput(signalFunction: Double, weightSum: Double): Double {
-        y = signalFunction / weightSum
+    fun calculateOutput(signal: Double, weightSum: Double): Double {
+        y = signal / weightSum
         return y
     }
 }

@@ -1,10 +1,13 @@
 package com.chekh.network.layer
 
 import com.chekh.network.neuron.GeneratingNeuron
+import java.util.concurrent.ThreadLocalRandom
 
 class GeneratingLayer(val inputCount: Int, val ruleCount: Int) {
-    private val neurons: MutableList<GeneratingNeuron> = mutableListOf()
+    private val neurons: MutableList<GeneratingNeuron> = MutableList(ruleCount) { GeneratingNeuron(inputCount) }
+
     val generating: List<Double> get() = neurons.map { it.generating }
+
     val pGroupedByRules: List<List<Double>>
         get() {
             val list = mutableListOf<List<Double>>()
@@ -12,9 +15,16 @@ class GeneratingLayer(val inputCount: Int, val ruleCount: Int) {
             return list
         }
 
-    init {
-        for (index in 0 until ruleCount) {
-            neurons.add(GeneratingNeuron(inputCount))
+    fun initWeights() {
+        val random = ThreadLocalRandom.current()
+        neurons.forEach { neuron ->
+            var accumulator = 0.0
+            for (index in 0 until inputCount) {
+                val value = random.nextDouble(1.0 - accumulator)
+                accumulator += value
+                neuron.p[index] = value
+            }
+            neuron.p[inputCount] = 1.0 - accumulator
         }
     }
 

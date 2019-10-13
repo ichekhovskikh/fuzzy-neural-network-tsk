@@ -1,12 +1,15 @@
 package com.chekh.network.layer
 
+import com.chekh.network.Dataset
 import com.chekh.network.neuron.FuzzyNeuron
 import com.chekh.network.util.derivativeB
 import com.chekh.network.util.derivativeC
 import com.chekh.network.util.derivativeSigma
+import kotlin.math.abs
 
 class FuzzyLayer(val inputCount: Int, val ruleCount: Int) {
-    private val neurons: MutableList<FuzzyNeuron> = mutableListOf()
+    private val neurons: MutableList<FuzzyNeuron> = MutableList(inputCount * ruleCount) { FuzzyNeuron() }
+
     val muGroupedByRules: List<List<Double>>
         get() {
             val list = mutableListOf<List<Double>>()
@@ -20,11 +23,15 @@ class FuzzyLayer(val inputCount: Int, val ruleCount: Int) {
             return list
         }
 
-    init {
-        val uniqueNeurons = createUniqueNeurons(ruleCount)
-        for (index in 0 until inputCount) {
-            uniqueNeurons.forEach {
-                neurons.add(FuzzyNeuron(it))
+    fun initWeights(dataset: Dataset) {
+        for (ruleIndex in 0 until ruleCount) {
+            val cluster = dataset.rows.filter { it.output.toInt() == ruleIndex }
+            for (inputIndex in 0 until inputCount) {
+                val fuzzyNeuron = getFuzzyNeuron(inputIndex, ruleIndex)
+                fuzzyNeuron.b = 1.0
+                val paramsForOneInput = cluster.map { it.inputs[inputIndex] }
+                fuzzyNeuron.c = paramsForOneInput.average()
+                fuzzyNeuron.sigma = paramsForOneInput.maxBy { abs(it - fuzzyNeuron.c) }!!
             }
         }
     }
@@ -49,12 +56,9 @@ class FuzzyLayer(val inputCount: Int, val ruleCount: Int) {
                 pGrouped.forEachIndexed { groupIndex, p ->
                     var sum = p[0]
                     x.forEachIndexed { index, value -> sum += p[index + 1] * value }
-                    val derivativeC = fuzzyNeuron.derivativeC(ruleIndex, inputIndex, groupIndex, input, mu)
-                    val derivativeSigma = fuzzyNeuron.derivativeSigma(ruleIndex, inputIndex, groupIndex, input, mu)
-                    val derivativeB = fuzzyNeuron.derivativeB(ruleIndex, inputIndex, groupIndex, input, mu)
-                    gradC += error * sum * derivativeC
-                    gradSigma += error * sum * derivativeSigma
-                    gradB += error * sum * derivativeB
+                    gradC += error * sum * fuzzyNeuron.derivativeC(ruleIndex, inputIndex, groupIndex, input, mu)
+                    gradSigma += error * sum * fuzzyNeuron.derivativeSigma(ruleIndex, inputIndex, groupIndex, input, mu)
+                    gradB += error * sum * fuzzyNeuron.derivativeB(ruleIndex, inputIndex, groupIndex, input, mu)
                 }
                 fuzzyNeuron.c = fuzzyNeuron.c - learningRate * gradC
                 fuzzyNeuron.sigma = fuzzyNeuron.sigma - learningRate * gradSigma
@@ -65,13 +69,5 @@ class FuzzyLayer(val inputCount: Int, val ruleCount: Int) {
 
     private fun getFuzzyNeuron(inputIndex: Int, ruleIndex: Int): FuzzyNeuron {
         return neurons[ruleIndex + inputIndex * inputCount]
-    }
-
-    private fun createUniqueNeurons(count: Int): List<FuzzyNeuron> {
-        val uniqueNeurons = mutableListOf<FuzzyNeuron>()
-        for (index in 0 until count) {
-            uniqueNeurons.add(FuzzyNeuron())
-        }
-        return uniqueNeurons
     }
 }
