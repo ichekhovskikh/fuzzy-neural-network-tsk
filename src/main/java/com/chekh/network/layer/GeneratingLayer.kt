@@ -8,39 +8,36 @@ class GeneratingLayer(val inputCount: Int, val ruleCount: Int) {
 
     val generating: List<Double> get() = neurons.map { it.generating }
 
-    val pGroupedByRules: List<List<Double>>
+    val paramsGroupedByRules: List<List<Double>>
         get() {
             val list = mutableListOf<List<Double>>()
-            neurons.forEach { neuron -> list.add(neuron.p) }
+            neurons.forEach { neuron -> list.add(neuron.params) }
             return list
         }
 
-    fun initWeights() {
+    fun initLinearParams() {
         val random = ThreadLocalRandom.current()
         neurons.forEach { neuron ->
-            var accumulator = 0.0
-            for (index in 0 until inputCount) {
-                val value = random.nextDouble(1.0 - accumulator)
-                accumulator += value
-                neuron.p[index] = value
+            for (index in 0 until inputCount + 1) {
+                neuron.params[index] = random.nextDouble(1.0)
             }
-            neuron.p[inputCount] = 1.0 - accumulator
         }
     }
 
-    fun calculate(x: List<Double>, weights: List<Double>) {
-        require(inputCount == x.size)
+    fun calculate(inputs: List<Double>, weights: List<Double>) {
+        require(inputCount == inputs.size)
         require(ruleCount == weights.size)
         weights.forEachIndexed { aggregationIndex, weight ->
-            neurons[aggregationIndex].calculateGenerating(x, weight)
+            neurons[aggregationIndex].calculateGenerating(inputs, weight)
         }
     }
 
-    fun asActivationArray(activationLevels: List<Double>): DoubleArray {
+    fun getWeightedActivationLevels(inputs: List<Double>, activationLevels: List<Double>): DoubleArray {
         require(ruleCount == activationLevels.size)
         val array = mutableListOf<Double>()
-        neurons.forEachIndexed { ruleIndex, neuron ->
-            neuron.p.forEach { _ -> array.add(activationLevels[ruleIndex]) }
+        for (ruleIndex in 0 until neurons.size) {
+            array.add(activationLevels[ruleIndex])
+            inputs.forEach { input -> array.add(input * activationLevels[ruleIndex]) }
         }
         return array.toDoubleArray()
     }
@@ -48,8 +45,8 @@ class GeneratingLayer(val inputCount: Int, val ruleCount: Int) {
     fun setLinearParams(params: List<Double>) {
         require(params.size == ruleCount * (inputCount + 1))
         for (ruleIndex in 0 until neurons.size) {
-            for (paramIndex in 0 until neurons[ruleIndex].p.size) {
-                neurons[ruleIndex].p[paramIndex] = params[paramIndex + ruleIndex * (inputCount + 1)]
+            for (paramIndex in 0 until neurons[ruleIndex].params.size) {
+                neurons[ruleIndex].params[paramIndex] = params[paramIndex + ruleIndex * (inputCount + 1)]
             }
         }
     }

@@ -13,12 +13,11 @@ class AggregationLayer(val ruleCount: Int) {
         }
     }
 
-    fun asActivationArray(): List<Double> {
-        val activationLevels = mutableListOf<Double>()
-        val sum = neurons.sumByDouble { it.weight }
-        for (ruleIndex in 0 until ruleCount) {
-            activationLevels.add(neurons[ruleIndex].weight / sum)
+    val activationLevels: List<Double>
+        get() = mutableListOf<Double>().apply {
+            val sum = neurons.sumByDouble { it.weight }
+            for (ruleIndex in 0 until ruleCount) {
+                add(neurons[ruleIndex].weight / sum)
+            }
         }
-        return activationLevels
-    }
 }

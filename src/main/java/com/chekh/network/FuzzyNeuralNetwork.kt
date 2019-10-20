@@ -2,9 +2,7 @@ package com.chekh.network
 
 import com.chekh.network.layer.AggregationLayer
 import com.chekh.network.layer.*
-import com.chekh.network.util.toList
-import com.chekh.network.util.toSimpleColumn
-import com.chekh.network.util.toSimpleMatrix
+import com.chekh.network.util.*
 
 class FuzzyNeuralNetwork(val inputCount: Int, val ruleCount: Int) {
     private val inputLayer = InputLayer(inputCount)
@@ -14,62 +12,84 @@ class FuzzyNeuralNetwork(val inputCount: Int, val ruleCount: Int) {
     private val summingLayer = SummingLayer()
     private val softmaxLayer = SoftmaxLayer()
     private val outputLayer = OutputLayer()
+    var logger: Logger? = null
+    var errorDrawer: ErrorDrawer? = null
 
     fun retrain(dataset: Dataset, epoch: Int, learningRate: Double) {
+        errorDrawer?.clear()
         initWeights(dataset)
         train(dataset, epoch, learningRate)
     }
 
     fun train(dataset: Dataset, epoch: Int, learningRate: Double) {
+        logger?.log("\nSTART TRAIN\n")
         for (index in 0 until epoch) {
-            calculateLinearParams(dataset)
-            calculateNonLinearParams(dataset, learningRate)
+            logger?.log("epoch = $index")
+            correctLinearParams(dataset)
+            correctNonLinearParams(dataset, learningRate)
         }
+        errorDrawer?.draw()
+        logger?.log("min error = ${errorDrawer?.errors?.min()} max error = ${errorDrawer?.errors?.max()}")
+
     }
 
-    fun calcutale(x: List<Double>): Double {
-        inputLayer.x = x
+    fun test(dataset: Dataset, accuracyDelta: Double = 0.0): Float {
+        var errors = 0
+        logger?.log("\nSTART TESTING")
+        dataset.rows.forEach { row ->
+            logger?.log("\n$row")
+            val output = calculate(row.inputs)
+            if (output !in row.output - accuracyDelta..row.output + accuracyDelta) errors++
+            logger?.log("test: real = ${row.output} network = $output")
+            logger?.log("errors = $errors accuracy = ${1f - errors.toFloat() / dataset.rows.size}")
+        }
+        return 1f - errors.toFloat() / dataset.rows.size
+    }
+
+    fun calculate(x: List<Double>): Double {
+        inputLayer.inputs = x
         layersRecalculate()
-        return outputLayer.y
+        return outputLayer.output
     }
 
     private fun initWeights(dataset: Dataset) {
-        fuzzyLayer.initWeights(dataset)
-        generatingLayer.initWeights()
+        fuzzyLayer.initNonLinearParams(dataset)
+        generatingLayer.initLinearParams()
     }
 
     private fun layersRecalculate() {
-        fuzzyLayer.calculate(inputLayer.x)
+        fuzzyLayer.calculate(inputLayer.inputs)
         aggregationLayer.calculate(fuzzyLayer.muGroupedByRules)
-        generatingLayer.calculate(inputLayer.x, aggregationLayer.weights)
+        generatingLayer.calculate(inputLayer.inputs, aggregationLayer.weights)
         summingLayer.calculate(generatingLayer.generating, aggregationLayer.weights)
         softmaxLayer.calculate(summingLayer.signal, summingLayer.weightSum)
-        outputLayer.calculate(softmaxLayer.y)
+        outputLayer.calculate(softmaxLayer.output)
     }
 
-    private fun calculateLinearParams(dataset: Dataset) {
-        val fullActivationMatrix = mutableListOf<DoubleArray>()
-        val fullOutputMatrix = mutableListOf<Double>()
+    private fun correctLinearParams(dataset: Dataset) {
+        val activationMatrix = mutableListOf<DoubleArray>()
+        val outputMatrix = mutableListOf<Double>()
         dataset.rows.shuffled().forEach { row ->
-            calcutale(row.inputs)
-            val activationLevels = aggregationLayer.asActivationArray()
-            val activationArrayForOneEpoch = generatingLayer.asActivationArray(activationLevels)
-            fullActivationMatrix.add(activationArrayForOneEpoch)
-            fullOutputMatrix.add(row.output)
+            calculate(row.inputs)
+            val activationLevels = aggregationLayer.activationLevels
+            val weightedActivationLevels = generatingLayer.getWeightedActivationLevels(row.inputs, activationLevels)
+            activationMatrix.add(weightedActivationLevels)
+            outputMatrix.add(row.output)
         }
-        val linearParams = fullActivationMatrix
+        val linearParams = activationMatrix
             .toSimpleMatrix()
             .pseudoInverse()
-            .mult(fullOutputMatrix.toSimpleColumn())
+            .mult(outputMatrix.toSimpleColumn())
             .toList(0)
         generatingLayer.setLinearParams(linearParams)
     }
 
-    private fun calculateNonLinearParams(dataset: Dataset, learningRate: Double) {
+    private fun correctNonLinearParams(dataset: Dataset, learningRate: Double) {
         dataset.rows.shuffled().forEach { row ->
-            calcutale(row.inputs)
+            calculate(row.inputs)
             val error = outputLayer.getError(row.output)
-            fuzzyLayer.correct(inputLayer.x, generatingLayer.pGroupedByRules, error, learningRate)
+            errorDrawer?.errors?.add(error)
+            fuzzyLayer.correct(inputLayer.inputs, generatingLayer.paramsGroupedByRules, error, learningRate)
         }
     }
 }

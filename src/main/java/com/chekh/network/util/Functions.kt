@@ -15,7 +15,7 @@ class Functions private constructor() {
             var mul = 0.0
             this.forEachIndexed { index, value ->
                 if (index != ignoreIndex) {
-                    mul *= value
+                    mul = if (mul == 0.0) value else mul * value
                 }
             }
             return mul

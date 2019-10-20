@@ -4,7 +4,7 @@ import com.chekh.network.neuron.SoftmaxNeuron
 
 class SoftmaxLayer {
     private val neuron: SoftmaxNeuron = SoftmaxNeuron()
-    val y: Double get() = neuron.y
+    val output: Double get() = neuron.output
 
     fun calculate(signal: Double, weightSum: Double) {
         neuron.calculateOutput(signal, weightSum)
