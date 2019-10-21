@@ -27,7 +27,7 @@ class FuzzyLayer(val inputCount: Int, val ruleCount: Int) {
 
     private fun initNonIntersectingNeuron(dataset: Dataset) {
         for (ruleIndex in 0 until ruleCount step 2) {
-            val cluster = dataset.rows.filter { it.output.toInt() == ruleIndex / 2 }
+            val cluster = dataset.getClass(ruleIndex / 2)
             for (inputIndex in 0 until inputCount) {
                 val neuron = getFuzzyNeuron(inputIndex, ruleIndex)
                 val paramsForOneInput = cluster.map { it.inputs[inputIndex] }
