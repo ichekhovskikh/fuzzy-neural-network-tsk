@@ -1,6 +1,6 @@
 package com.chekh.network.util
 
-import com.chekh.network.Dataset
+import com.chekh.network.dataset.Dataset
 
 object DatasetSeparator {
 

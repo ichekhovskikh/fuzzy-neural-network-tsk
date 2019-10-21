@@ -1,6 +1,6 @@
 package com.chekh.network.layer
 
-import com.chekh.network.Dataset
+import com.chekh.network.dataset.Dataset
 import com.chekh.network.neuron.FuzzyNeuron
 import com.chekh.network.util.derivativeCenter
 import com.chekh.network.util.derivativeSigma

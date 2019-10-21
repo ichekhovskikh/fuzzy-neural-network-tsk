@@ -1,5 +1,6 @@
 package com.chekh.network
 
+import com.chekh.network.dataset.Dataset
 import com.chekh.network.layer.AggregationLayer
 import com.chekh.network.layer.*
 import com.chekh.network.util.*

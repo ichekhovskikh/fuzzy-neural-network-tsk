@@ -1,21 +1,16 @@
-package com.chekh.network
+package com.chekh.network.dataset
 
 import com.chekh.network.util.readCsv
-
-
-interface DatasetClassifier {
-    fun getClass(index: Int, rows: List<Row>): List<Row>
-}
 
 data class Row(var inputs: List<Double>, var output: Double)
 
 data class Dataset(var rows: List<Row>, val classifier: DatasetClassifier) {
 
-    constructor(path: String, classifier: DatasetClassifier): this(readRows(path), classifier)
+    constructor(path: String, classifier: DatasetClassifier) : this(readRows(path), classifier)
 
     val inputSize = rows.firstOrNull()?.inputs?.size ?: 0
 
-    val outputType = rows.map { it.output }.distinct().size
+    val outputTypes = classifier.getClassesSize(rows)
 
     fun getClass(index: Int) = classifier.getClass(index, rows)
 
