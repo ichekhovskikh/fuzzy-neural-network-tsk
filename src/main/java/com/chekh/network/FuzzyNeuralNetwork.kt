@@ -5,7 +5,7 @@ import com.chekh.network.layer.AggregationLayer
 import com.chekh.network.layer.*
 import com.chekh.network.util.*
 
-class FuzzyNeuralNetwork(val inputCount: Int, val ruleCount: Int) {
+class FuzzyNeuralNetwork(override val inputCount: Int, val ruleCount: Int) : NeuralNetwork {
     private val inputLayer = InputLayer(inputCount)
     private val fuzzyLayer = FuzzyLayer(inputCount, ruleCount)
     private val aggregationLayer = AggregationLayer(ruleCount)
@@ -16,13 +16,15 @@ class FuzzyNeuralNetwork(val inputCount: Int, val ruleCount: Int) {
     var logger: Logger? = null
     var errorDrawer: ErrorDrawer? = null
 
-    fun retrain(dataset: Dataset, epoch: Int, learningRate: Double) {
+    override val outputCount = 1
+
+    override fun retrain(dataset: Dataset, epoch: Int, learningRate: Double) {
         errorDrawer?.clear()
         initWeights(dataset)
         train(dataset, epoch, learningRate)
     }
 
-    fun train(dataset: Dataset, epoch: Int, learningRate: Double) {
+    override fun train(dataset: Dataset, epoch: Int, learningRate: Double) {
         logger?.log("\nSTART TRAIN\n")
         for (index in 0 until epoch) {
             logger?.log("epoch = $index")
@@ -34,7 +36,7 @@ class FuzzyNeuralNetwork(val inputCount: Int, val ruleCount: Int) {
 
     }
 
-    fun test(dataset: Dataset, accuracyDelta: Double = 0.0): Float {
+    override fun test(dataset: Dataset, accuracyDelta: Double): Float {
         var errors = 0
         logger?.log("\nSTART TESTING")
         dataset.rows.forEach { row ->
@@ -47,8 +49,8 @@ class FuzzyNeuralNetwork(val inputCount: Int, val ruleCount: Int) {
         return 1f - errors.toFloat() / dataset.rows.size
     }
 
-    fun calculate(x: List<Double>): Double {
-        inputLayer.inputs = x
+    override fun calculate(inputs: List<Double>): Double {
+        inputLayer.inputs = inputs
         layersRecalculate()
         return outputLayer.output
     }
