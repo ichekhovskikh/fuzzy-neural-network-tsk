@@ -9,8 +9,8 @@ class FuzzyNeuron {
     var center: Double = 0.0
     var sigma: Double = 0.0
 
-    fun calculateMu(x: Double): Double {
-        mu = Functions.gaussian(x, b, center, sigma)
+    fun calculateMu(input: Double): Double {
+        mu = Functions.gaussian(input, b, center, sigma)
         return mu
     }
 }

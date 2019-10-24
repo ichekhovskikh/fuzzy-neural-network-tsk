@@ -1,6 +1,6 @@
 package com.chekh.network.neuron
 
-class SoftmaxNeuron {
+class NormalizationNeuron {
     var output: Double = 0.0
         private set
 

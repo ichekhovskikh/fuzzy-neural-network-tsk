@@ -1,9 +1,9 @@
 package com.chekh.network.layer
 
-import com.chekh.network.neuron.SoftmaxNeuron
+import com.chekh.network.neuron.NormalizationNeuron
 
-class SoftmaxLayer {
-    private val neuron: SoftmaxNeuron = SoftmaxNeuron()
+class NormalizationLayer {
+    private val neuron: NormalizationNeuron = NormalizationNeuron()
     val output: Double get() = neuron.output
 
     fun calculate(signal: Double, weightSum: Double) {

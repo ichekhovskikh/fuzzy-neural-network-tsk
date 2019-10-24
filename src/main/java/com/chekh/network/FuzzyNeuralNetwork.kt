@@ -11,8 +11,9 @@ class FuzzyNeuralNetwork(override val inputCount: Int, val ruleCount: Int) : Neu
     private val aggregationLayer = AggregationLayer(ruleCount)
     private val generatingLayer = GeneratingLayer(inputCount, ruleCount)
     private val summingLayer = SummingLayer()
-    private val softmaxLayer = SoftmaxLayer()
+    private val normalizationLayer = NormalizationLayer()
     private val outputLayer = OutputLayer()
+
     var logger: Logger? = null
     var errorDrawer: ErrorDrawer? = null
 
@@ -27,7 +28,6 @@ class FuzzyNeuralNetwork(override val inputCount: Int, val ruleCount: Int) : Neu
     override fun train(dataset: Dataset, epoch: Int, learningRate: Double) {
         logger?.log("\nSTART TRAIN\n")
         for (index in 0 until epoch) {
-            logger?.log("epoch = $index")
             correctLinearParams(dataset)
             correctNonLinearParams(dataset, learningRate)
         }
@@ -44,8 +44,8 @@ class FuzzyNeuralNetwork(override val inputCount: Int, val ruleCount: Int) : Neu
             val output = calculate(row.inputs)
             if (output !in row.output - accuracyDelta..row.output + accuracyDelta) errors++
             logger?.log("test: real = ${row.output} network = $output")
-            logger?.log("errors = $errors accuracy = ${1f - errors.toFloat() / dataset.rows.size}")
         }
+        logger?.log("errors = $errors accuracy = ${1f - errors.toFloat() / dataset.rows.size}")
         return 1f - errors.toFloat() / dataset.rows.size
     }
 
@@ -65,8 +65,8 @@ class FuzzyNeuralNetwork(override val inputCount: Int, val ruleCount: Int) : Neu
         aggregationLayer.calculate(fuzzyLayer.muGroupedByRules)
         generatingLayer.calculate(inputLayer.inputs, aggregationLayer.weights)
         summingLayer.calculate(generatingLayer.generating, aggregationLayer.weights)
-        softmaxLayer.calculate(summingLayer.signal, summingLayer.weightSum)
-        outputLayer.calculate(softmaxLayer.output)
+        normalizationLayer.calculate(summingLayer.signal, summingLayer.weightSum)
+        outputLayer.calculate(normalizationLayer.output)
     }
 
     private fun correctLinearParams(dataset: Dataset) {

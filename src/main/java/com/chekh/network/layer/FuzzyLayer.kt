@@ -51,25 +51,25 @@ class FuzzyLayer(val inputCount: Int, val ruleCount: Int) {
         }
     }
 
-    fun calculate(x: List<Double>) {
-        require(inputCount == x.size)
-        x.forEachIndexed { inputIndex, value ->
+    fun calculate(inputs: List<Double>) {
+        require(inputCount == inputs.size)
+        inputs.forEachIndexed { inputIndex, input ->
             for (ruleIndex in 0 until ruleCount) {
-                getFuzzyNeuron(inputIndex, ruleIndex).calculateMu(value)
+                getFuzzyNeuron(inputIndex, ruleIndex).calculateMu(input)
             }
         }
     }
 
-    fun correct(x: List<Double>, pGrouped: List<List<Double>>, error: Double, learningRate: Double) {
+    fun correct(inputs: List<Double>, linearParamsGrouped: List<List<Double>>, error: Double, learningRate: Double) {
         val mu = muGroupedByRules
-        x.forEachIndexed { inputIndex, input ->
+        inputs.forEachIndexed { inputIndex, input ->
             for (ruleIndex in 0 until ruleCount) {
                 val neuron = getFuzzyNeuron(inputIndex, ruleIndex)
                 var gradCenter = 0.0
                 var gradSigma = 0.0
-                pGrouped.forEachIndexed { groupIndex, p ->
-                    var sum = p[0]
-                    x.forEachIndexed { index, value -> sum += p[index + 1] * value }
+                linearParamsGrouped.forEachIndexed { groupIndex, linearParam ->
+                    var sum = linearParam[0]
+                    inputs.forEachIndexed { index, value -> sum += linearParam[index + 1] * value }
                     gradCenter += error * sum * neuron.derivativeCenter(ruleIndex, inputIndex, groupIndex, input, mu)
                     gradSigma += error * sum * neuron.derivativeSigma(ruleIndex, inputIndex, groupIndex, input, mu)
                 }
